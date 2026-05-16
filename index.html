@@ -192,6 +192,24 @@
             background: #5568d3;
         }
 
+        .copy-btn {
+            display: inline-block;
+            margin-top: 8px;
+            margin-left: 8px;
+            padding: 6px 12px;
+            background: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .copy-btn:active {
+            background: #45a049;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -351,6 +369,7 @@
                         ${item.u_nick ? `<div><span class="label">店铺:</span>${escapeHtml(item.u_nick)}</div>` : ''}
                         <div><span class="label">来源URL:</span>${escapeHtml(item.source_product_url)}</div>
                         <a href="${escapeHtml(item.source_product_url)}" target="_blank" class="link-btn">打开商品链接 →</a>
+                        <button onclick="copyUrl('${escapeHtml(item.source_product_url)}')" class="copy-btn">📋 复制链接</button>
                     </div>
                 </div>
             `).join('');
@@ -371,6 +390,8 @@
                 msgDiv.innerHTML = `<div class="error">${msg}</div>`;
             } else if (type === 'loading') {
                 msgDiv.innerHTML = '<div class="loading">⏳ 查询中...</div>';
+            } else if (type === 'success') {
+                msgDiv.innerHTML = `<div class="stats" style="background: #e8f5e9; color: #2e7d32;">${msg}</div>`;
             }
         }
 
@@ -379,6 +400,15 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showMessage('✅ URL已复制到剪贴板', 'success');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                showMessage('❌ 复制失败，请手动复制', 'error');
+            });
         }
 
         // 支持回车键查询
