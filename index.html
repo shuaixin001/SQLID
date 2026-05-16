@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>商品查询系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-search:active {
+            transform: scale(0.98);
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-clear:active {
+            background: #e0e0e0;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .result-list {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .result-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:active {
+            background: #f8f9ff;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .item-title {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+            margin-right: 10px;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #f0f0f0;
+        }
+
+        .item-info {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .item-info div {
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .label {
+            color: #999;
+            display: inline-block;
+            min-width: 70px;
+        }
+
+        .link-btn {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .link-btn:active {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .search-box {
+                padding: 15px;
+            }
+
+            .item-img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 商品查询系统</h1>
+            <p>快速查找商品信息</p>
+        </div>
+
+        <div class="search-box">
+            <div class="input-group">
+                <label>产品ID</label>
+                <input type="text" id="productId" placeholder="输入产品ID精确查询">
+            </div>
+            
+            <div class="input-group">
+                <label>商品标题</label>
+                <input type="text" id="title" placeholder="输入完整标题精确查询">
+            </div>
+            
+            <div class="input-group">
+                <label>商品URL（模糊匹配）</label>
+                <input type="text" id="url" placeholder="输入URL关键词">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-search" onclick="search()">🔍 查询</button>
+                <button class="btn btn-clear" onclick="clearSearch()">清空</button>
+            </div>
+        </div>
+
+        <div id="message"></div>
+        <div id="stats" class="stats" style="display: none;"></div>
+        <div id="results" class="result-list"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://foxcrxalvmcdilugfcuy.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Xjks80WMujIOc0elBtBebA_v7GV5ZI6';
+
+        async function search() {
+            const productId = document.getElementById('productId').value.trim();
+            const title = document.getElementById('title').value.trim();
+            const url = document.getElementById('url').value.trim();
+
+            if (!productId && !title && !url) {
+                showMessage('请至少输入一个查询条件', 'error');
+                return;
+            }
+
+            // 构建查询条件
+            let filters = [];
+            if (productId) {
+                filters.push(`product_id=eq.${encodeURIComponent(productId)}`);
+            }
+            if (title) {
+                filters.push(`title=eq.${encodeURIComponent(title)}`);
+            }
+            if (url) {
+                filters.push(`source_product_url=ilike.*${encodeURIComponent(url)}*`);
+            }
+
+            const query = filters.length > 0 ? '&' + filters.join('&') : '';
+            const apiUrl = `${SUPABASE_URL}/rest/v1/tb_product_data?select=*&order=created_at.desc${query}`;
+
+            console.log('查询URL:', apiUrl);
+            console.log('查询条件:', { productId, title, url });
+
+            showMessage('查询中...', 'loading');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('查询结果:', data);
+                console.log('结果数量:', data.length);
+                displayResults(data);
+
+            } catch (error) {
+                console.error('查询失败:', error);
+                showMessage('查询失败: ' + error.message, 'error');
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const statsDiv = document.getElementById('stats');
+
+            if (data.length === 0) {
+                resultsDiv.innerHTML = '<div class="empty">没有找到相关商品</div>';
+                statsDiv.style.display = 'none';
+                return;
+            }
+
+            // 显示统计信息
+            statsDiv.textContent = `共找到 ${data.length} 条记录`;
+            statsDiv.style.display = 'block';
+
+            // 显示结果列表
+            resultsDiv.innerHTML = data.map(item => `
+                <div class="result-item">
+                    <div class="item-header">
+                        <div class="item-title">${escapeHtml(item.title)}</div>
+                        ${item.img ? `<img src="${escapeHtml(item.img)}" class="item-img" onclick="window.open('${escapeHtml(item.img)}')">` : ''}
+                    </div>
+                    <div class="item-info">
+                        <div><span class="label">产品ID:</span>${escapeHtml(item.product_id)}</div>
+                        ${item.u_nick ? `<div><span class="label">店铺:</span>${escapeHtml(item.u_nick)}</div>` : ''}
+                        <div><span class="label">来源URL:</span>${escapeHtml(item.source_product_url)}</div>
+                        <a href="${escapeHtml(item.source_product_url)}" target="_blank" class="link-btn">打开商品链接 →</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearSearch() {
+            document.getElementById('productId').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('url').value = '';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('message').innerHTML = '';
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            if (type === 'error') {
+                msgDiv.innerHTML = `<div class="error">${msg}</div>`;
+            } else if (type === 'loading') {
+                msgDiv.innerHTML = '<div class="loading">⏳ 查询中...</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 支持回车键查询
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    search();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
